@@ -43,4 +43,13 @@ public class Cell {
     public void setSymbol(Symbol symbol) {
         this.symbol = symbol;
     }
+
+    public void display(){
+            if(symbol != null){
+                System.out.print("| "+symbol.getSym()+" |");
+            }
+            else {
+                System.out.print("| - |");
+            }
+    }
 }

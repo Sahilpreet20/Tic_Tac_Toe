@@ -3,7 +3,9 @@ package src.models;
 import src.strategies.WinningStrategy;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Game{
     private Board board;
@@ -28,6 +30,9 @@ public class Game{
         return board;
     }
 
+    public void displayBoard(){
+        board.display();
+    }
     public void setBoard(Board board) {
         this.board = board;
     }
@@ -64,6 +69,62 @@ public class Game{
         this.moves = moves;
     }
 
+    private boolean validateMove(Move move){
+        if(!move.getCell().getCellState().equals(CellState.EMPTY)){
+            return false;
+        }
+
+        int row = move.getCell().getRow();
+        int col = move.getCell().getCol();
+
+        if(row < 0 || col < 0 || row > board.getSize() - 1 || col > board.getSize() - 1){
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean checkWinner(Move move){
+        return false;
+    }
+    public void makeMove(){
+        Player currentPlayer = players.get(nextPlayerIndex);
+
+        System.out.println(" It's " + currentPlayer.getName() + "'s turn. Please make the move");
+
+        Move move = currentPlayer.makeMove(board);
+
+        if(!validateMove(move)){
+            System.out.println("Not a valid move");
+            return;
+        }
+
+        int row = move.getCell().getRow();
+        int col = move.getCell().getCol();
+
+        Cell cellToChange = board.getGrid().get(row).get(col);
+        cellToChange.setCellState(CellState.FILLED);
+        cellToChange.setSymbol(currentPlayer.getSymbol());
+        move.setPlayer(currentPlayer);
+        move.setCell(cellToChange);
+
+
+        moves.add(move);
+
+        nextPlayerIndex++;
+        nextPlayerIndex %= players.size();
+
+//        confirm if there is change in state
+        if(checkWinner(move)){
+            setWinner(currentPlayer);
+            setGameState(GameState.SUCCESS);
+        }
+        else if(moves.size() == board.getSize() * board.getSize()){
+            setWinner(null);
+            setGameState(GameState.DRAW);
+        }
+
+    }
     public GameState getGameState() {
         return gameState;
     }
@@ -104,12 +165,36 @@ public class Game{
             return this;
         }
 
-        public void validate(){
+        private void validate(){
 
-            if(players == null){
-                throw new IllegalArgumentException("players cannot be null");
+            if (players.size() != dimension - 1){
+                throw new RuntimeException("Invalid Player Count");
             }
 
+            //Only one Bot player check
+            int botCount = 0;
+            for(Player player:players){
+                if(player.getPlayerType().equals(PlayerType.BOT)){
+                    botCount ++;
+
+                }
+
+                if (botCount > 1){
+                    throw new RuntimeException("More than one bot is not allowed");
+                }
+            }
+
+            //Each Player has separate symbol check
+            Set<Character> symbolSet = new HashSet<>();
+
+            for(Player player:players){
+                if(symbolSet.contains(player.getSymbol().getSym())){
+                    throw new RuntimeException("Multiple Players Have Same Symbol");
+                }
+
+                symbolSet.add(player.getSymbol().getSym());
+
+            }
 
         }
         public Game build(){

@@ -36,4 +36,13 @@ public class Board {
     public void setGrid(List<List<Cell>> grid) {
         this.grid = grid;
     }
+
+    public void display(){
+        for(List<Cell> row : grid) {
+            for(Cell cell : row) {
+                cell.display();
+            }
+            System.out.println();
+        }
+    }
 }
