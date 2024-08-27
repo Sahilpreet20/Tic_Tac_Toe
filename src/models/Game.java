@@ -85,7 +85,37 @@ public class Game{
     }
 
     public boolean checkWinner(Move move){
+        for(WinningStrategy winningStrategy:winningStrategies){
+            if(winningStrategy.checkWinner(board,move)){
+                return true;
+            }
+        }
+
         return false;
+    }
+
+    public void undo(){
+        if(moves.isEmpty()){
+            System.out.println("Nothing to Undo");
+            return;
+        }
+
+        Move lastMove = moves.get(moves.size()-1);
+        moves.remove(moves.size()-1);
+
+        lastMove.getCell().setCellState(CellState.EMPTY);
+        lastMove.getCell().setSymbol(null);
+
+        nextPlayerIndex--;
+
+        nextPlayerIndex = (nextPlayerIndex + players.size()) % players.size();
+
+        for(WinningStrategy winningStrategy:winningStrategies){
+            winningStrategy.handleUndo(board,lastMove);
+        }
+
+        setGameState(GameState.IN_PROGRESS);
+        setWinner(null);
     }
     public void makeMove(){
         Player currentPlayer = players.get(nextPlayerIndex);

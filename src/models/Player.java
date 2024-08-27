@@ -54,7 +54,7 @@ public abstract class Player {
         System.out.println("Please enter the column where you want to make move");
         int c = sc.nextInt();
 
-        return new Move(new Cell(r,c),this);
+        return new Move(board.getGrid().get(r).get(c),this);
 
 
     }
